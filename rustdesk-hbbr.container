@@ -1,0 +1,38 @@
+[Unit]
+Description=RustDesk relay server (hbbr)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/rustdesk/rustdesk-server:latest
+AutoUpdate=registry
+Exec=hbbr
+
+# Container runs as root (UID 0).
+# In rootless Podman, container root maps to the service user on the host by default.
+# No UserNS= / User= / Group= mapping required.
+
+# Environment variables
+EnvironmentFile=%h/.config/containers/systemd/rustdesk.env
+EnvironmentFile=%h/.config/containers/systemd/rustdesk.override.env
+
+# Shared data volume — :z (lowercase) because both hbbs and hbbr mount this directory
+# /root is the working directory for data and keys when the container runs as root
+Volume=%h/data:/root:z
+
+# Network shared with hbbs
+Network=rustdesk.network
+ContainerName=rustdesk-hbbr
+
+# Ports — published directly; RustDesk is not behind a reverse proxy
+# 21117/tcp  Relay service (traffic forwarding when P2P fails)
+# 21119/tcp  WebSocket support for relay (web client)
+PublishPort=21117:21117
+PublishPort=21119:21119
+
+[Service]
+Restart=always
+TimeoutStartSec=90
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,42 @@
+[Unit]
+Description=RustDesk rendezvous server (hbbs)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/rustdesk/rustdesk-server:latest
+AutoUpdate=registry
+Exec=hbbs
+
+# Container runs as root (UID 0).
+# In rootless Podman, container root maps to the service user on the host by default.
+# No UserNS= / User= / Group= mapping required.
+
+# Environment variables
+EnvironmentFile=%h/.config/containers/systemd/rustdesk.env
+EnvironmentFile=%h/.config/containers/systemd/rustdesk.override.env
+
+# Shared data volume — :z (lowercase) because both hbbs and hbbr mount this directory
+# /root is the working directory for data and keys when the container runs as root
+Volume=%h/data:/root:z
+
+# Network shared with hbbr
+Network=rustdesk.network
+ContainerName=rustdesk-hbbs
+
+# Ports — published directly; RustDesk is not behind a reverse proxy
+# 21115/tcp  NAT type test
+# 21116/tcp  ID registration and heartbeat
+# 21116/udp  Hole punching / direct connection negotiation
+# 21118/tcp  WebSocket support for web client (rendezvous)
+PublishPort=21115:21115
+PublishPort=21116:21116
+PublishPort=21116:21116/udp
+PublishPort=21118:21118
+
+[Service]
+Restart=always
+TimeoutStartSec=90
+
+[Install]
+WantedBy=default.target
