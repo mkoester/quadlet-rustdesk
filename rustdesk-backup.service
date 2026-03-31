@@ -4,4 +4,4 @@ Description=RustDesk backup (data directory)
 [Service]
 Type=oneshot
 # Backup the data directory (keys + peer database) using rsync
-ExecStart=/usr/bin/rsync -a --delete %h/data/ /var/backups/rustdesk/
+ExecStart=/usr/bin/rsync -a --delete --chmod=Dg+x,Fg+r %h/data/ /var/backups/rustdesk/
