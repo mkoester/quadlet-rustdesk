@@ -130,7 +130,7 @@ The backup copies the data directory (server key pair + peer database) to `/var/
 # 1. Create backup staging directory (owned by rustdesk, readable by backup-readers group)
 sudo mkdir -p /var/backups/rustdesk
 sudo chown rustdesk:backup-readers /var/backups/rustdesk
-sudo chmod 750 /var/backups/rustdesk
+sudo chmod 2750 /var/backups/rustdesk
 
 # 2. Symlink the backup service and timer from the repo
 sudo -u rustdesk mkdir -p ~rustdesk/.config/systemd/user
